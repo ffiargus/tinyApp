@@ -1,0 +1,19 @@
+<h1>
+  Your Short URLs
+</h1>
+
+<form method="POST" action="/login">
+  <label for="username">Username:
+  <% if(user){ %>
+    <%= user.email %></label>
+    </form>
+    <a href="/logout">
+      <input type="submit" value="Logout">
+    </a>
+  <% } else { %>
+    </label>
+    <input id="username" type="text" name="username">
+    <input type="submit" value="Login">
+</form>
+  <% } %>
+

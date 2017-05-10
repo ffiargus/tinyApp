@@ -2,18 +2,18 @@
   Your Short URLs
 </h1>
 
-<form method="POST" action="/login">
-  <label for="username">Username:
-  <% if(username){ %>
-    <%= username %></label>
-    </form>
-    <a href="/logout">
-      <input type="submit" value="Logout">
-    </a>
-  <% } else { %>
-    </label>
-    <input id="username" type="text" name="username">
-    <input type="submit" value="Login">
-</form>
-  <% } %>
+<% if(user){ %>
+  <a href="/logout">
+    <input type="submit" value="Logout">
+  </a>
 
+<% } else { %>
+
+  <a href="/login">
+    <input type="submit" value="Login">
+  </a>
+  <a href="/register">
+    <input type="submit" value="Register">
+  </a>
+
+<% } %>
