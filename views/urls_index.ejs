@@ -13,33 +13,40 @@
     <header>
         <% include ./partials/_header %>
     </header>
+      <table>
+        <tr>
+          <th>Shortened URL</th><th>URL</th>
+        </tr>
 
-    <table>
-      <tr>
-        <th>Shortened URL</th><th>URL</th>
-      </tr>
+    <% if (user) { %>
+        <% for (url in urls) { %>
+        <tr>
+          <td><a href="u/<%= url %>"><%= url %></td><td><%= urls[url] %></td>
+            <td>
+            <!-- <a href="urls/<%= url %>">edit</a> -->
 
-      <% for (url in urls) { %>
-      <tr>
-        <td><a href="u/<%= url %>"><%= url %></td><td><%= urls[url] %></td>
-          <td>
-          <!-- <a href="urls/<%= url %>">edit</a> -->
+              <a href="urls/<%= url %>">
+                <input type="submit" value="Update">
+              </a>
 
-            <a href="urls/<%= url %>">
-              <input type="submit" value="Update">
-            </a>
+            </td>
+            <td>
+          <form method="POST" action="/urls/<%= url %>/delete">
+            <input type="submit" value="Delete">
+          </form></td>
+        </tr>
+        <% } %>
+      </table>
 
-          </td>
-          <td>
-        <form method="POST" action="/urls/<%= url %>/delete">
-          <input type="submit" value="Delete">
-        </form></td>
-      </tr>
-      <% } %>
-    </table>
+      <p>
+        <a href="urls/new">Click here to shoten a new URL</a>
+      </p>
+    <% } else { %>
+      </table>
+      <p>
+        <a href="/login">Please login or register to use this service</a>
+      </p>
 
-    <p>
-      <a href="urls/new">Click here to shoten a new URL</a>
-    </p>
+    <% } %>
   </body>
 </html>
