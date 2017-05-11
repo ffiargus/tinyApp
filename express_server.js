@@ -1,13 +1,19 @@
 var express = require("express");
 var app = express();
 var PORT = process.env.PORT || 8080; // default port 8080
-var cookieParser = require('cookie-parser')
+// var cookieParser = require('cookie-parser');
+const cookieSession = require('cookie-session');
 const bodyParser = require("body-parser");
 const bcrypt = require('bcrypt');
 
 app.use(express.static(__dirname + '/views'));
 app.use(bodyParser.urlencoded({extended: true}));
-app.use(cookieParser());
+app.use(cookieSession({
+  name: "session",
+  secret: "HelloWorld",
+  maxAge: 60 * 60 * 1000
+
+}));
 app.set("view engine", "ejs");
 
 var urlDatabase = {
@@ -82,7 +88,7 @@ app.get("/", (req, res) => {
 
 app.get("/urls/new", (req, res) => {
   let templateVars = {
-                       user: users[req.cookies["user_id"]]
+                       user: users[req.session.user_id]
                      };
   if (templateVars.user)
     res.render("urls_new", templateVars);
@@ -103,7 +109,7 @@ app.post("/register", (req, res) => {
     users[tempId]["email"] = req.body.email;
     users[tempId]["password"] = bcrypt.hashSync(req.body.password, 10);
     urlDatabase[tempId] = {};
-    res.cookie("user_id", tempId);
+    req.session.user_id = tempId;
     res.redirect("/urls");
   }
 });
@@ -113,19 +119,19 @@ app.post("/urls", (req, res) => {
   // res.send("Ok");         // Respond with 'Ok' (we will replace this)
   var tinyurl = generateRandomString();
   tinyurl = duplicateStringChecker(tinyurl);
-  urlDatabase[req.cookies["user_id"]][tinyurl] = req.body.longURL;
+  urlDatabase[req.session.user_id][tinyurl] = req.body.longURL;
   res.redirect("/urls");
   // res.render("/urls_index");
 });
 
 app.get("/logout", (req, res) => {
-  res.clearCookie("user_id");
+  req.session = null;
   res.redirect("/urls");
 });
 
 app.post("/urls/:id/delete", (req, res) => {
   console.log(req.body);  // debug statement to see POST parameters
-  delete urlDatabase[req.cookies["user_id"]][req.params.id];
+  delete urlDatabase[req.session.user_id][req.params.id];
   //res.send("Ok");         // Respond with 'Ok' (we will replace this)
   res.redirect("/urls");
 });
@@ -133,7 +139,7 @@ app.post("/urls/:id/delete", (req, res) => {
 app.post("/urls/:id", (req, res) => {
   console.log(req.body);  // debug statement to see POST parameters
   console.log(req.params.id);
-  urlDatabase[req.cookies["user_id"]][req.params.id] = req.body.longURL;
+  urlDatabase[req.session.user_id][req.params.id] = req.body.longURL;
   //res.send("Ok");         // Respond with 'Ok' (we will replace this)
   res.redirect("/urls");
 });
@@ -147,7 +153,7 @@ app.post("/login", (req, res) => {
   if (loginStatus == ""){
     res.send(res.statusCode = 403);
   } else {
-    res.cookie("user_id", loginStatus);
+    req.session.user_id = loginStatus;
     res.redirect("/urls");
   }
 });
@@ -167,19 +173,19 @@ app.get("/u/:shortURL", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  let templateVars = { urls: urlDatabase[req.cookies["user_id"]],
-                       user: users[req.cookies["user_id"]]
+  let templateVars = { urls: urlDatabase[req.session.user_id],
+                       user: users[req.session.user_id]
                      };
-  console.log(req.cookies["user_id"]);
-  console.log(templateVars.urls);
-  console.log(req.cookies["user_id"]);
+  // console.log(req.cookies["user_id"]);
+  // console.log(templateVars.urls);
+  // console.log(req.cookies["user_id"]);
   res.render("urls_index", templateVars);
 })
 
 app.get("/urls/:id", (req, res) => {
   let templateVars = { shortURL: req.params.id,
-                       longURL: urlDatabase[req.cookies["user_id"]][req.params.id],
-                       user: users[req.cookies["user_id"]]
+                       longURL: urlDatabase[req.session.user_id][req.params.id],
+                       user: users[req.session.user_id]
                      };
   res.render("urls_show", templateVars);
 });
