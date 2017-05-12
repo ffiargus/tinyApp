@@ -1,3 +1,4 @@
+"use strict"
 //Declase and use dependencies
 var express = require("express");
 var app = express();
@@ -66,7 +67,7 @@ var posts = [];
 
 //Helper functions
 function duplicateStringChecker(check) {
-  for(user in urlDatabase){
+  for (var user in urlDatabase){
     if(urlDatabase[user][check] || users[check]) {
       check = generateRandomString();
       duplicateStringChecker(check);
@@ -77,7 +78,7 @@ function duplicateStringChecker(check) {
 
 function duplicateEmailChecker(email) {
   let dupe = false;
-  for (user in users) {
+  for (var user in users) {
     if (users[user]["email"] == email) {
       dupe = true;
     };
@@ -87,7 +88,7 @@ function duplicateEmailChecker(email) {
 
 function loginChecker(email, pass) {
   let userId = "";
-  for (user in users) {
+  for (var user in users) {
     if (users[user]["email"] == email) {
       if (bcrypt.compareSync(pass, users[user]["password"]))
         userId = users[user]["id"];
@@ -235,7 +236,7 @@ app.get("/register", (req, res) => {
 
 app.get("/u/:shortURL", (req, res) => {
   let longURL = req.params.shortURL;
-  for(user in urlDatabase){
+  for (var user in urlDatabase){
     if(urlDatabase[user][longURL]){
       urlDatabase[user][longURL].timesVisited++;
       topLinkFinder(urlDatabase[user][longURL].timesVisited, longURL)
