@@ -60,9 +60,13 @@
 
     <div class="forum">
       <h3>Discuss and share URLs</h3>
-      <% for (log of chatLog) { %>
-        <p style="padding:2px"><%= log %></p>
-      <% } %>
+      <nav>
+        <ul>
+          <% for (log of chatLog) { %>
+            <li style="padding:2px"><%= log %></li>
+          <% } %>
+        </ul>
+      </nav>
       <form method="POST" action="/chat" style="padding:5px;position:absolute;bottom:3px">
         <input type="text" name="post" style="width:74%">
         <input type="submit" value="Post" style="width:40px">

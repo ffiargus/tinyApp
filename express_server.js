@@ -123,7 +123,11 @@ function topLinkFinder(visits, url) {
 };
 
 app.get("/", (req, res) => {
-  res.redirect("/urls");
+  if (req.session.user_id){
+    res.redirect("/urls");
+  } else {
+    res.redirect("/login");
+  }
 });
 
 app.get("/urls/new", (req, res) => {
@@ -245,10 +249,18 @@ app.get("/u/:shortURL", (req, res) => {
 app.post("/chat", (req, res) => {
   let currentTime = new Date();
   let currentUser = "Guest";
+  let hours = currentTime.getHours();
+  let minutes = currentTime.getMinutes();
+  if (minutes < 10) {
+    minutes = "0" + minutes;
+  }
+  if (hours < 10) {
+    hours = "0" + hours;
+  }
   if (req.session.user_id) {
     currentUser = users[req.session.user_id].id;
   }
-  posts.push(`${currentTime.getHours()}:${currentTime.getMinutes()} ${currentUser}: ${req.body.post}`);
+  posts.push(`[${hours}:${minutes}] ${currentUser}: ${req.body.post}`);
   res.redirect("/urls");
 });
 

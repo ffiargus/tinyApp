@@ -94,6 +94,13 @@ h3 {
   color: navy;
 }
 
+nav ul {
+  height: 280px;
+  width: 100%;
+  overflow: hidden;
+  overflow-y:scroll;
+}
+
 table {
   border-collapse: collapse;
   width: 100%;
