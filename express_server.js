@@ -105,10 +105,10 @@ function topLinkFinder(visits, url) {
         topVisits[i] = visits;
         break;
       } else {
-        topVisits.splice(i, 0, visits);
-        topLink.splice(i, 0, url);
+        topVisits.splice(i, 0, visits);   //These two arrays are always modified
+        topLink.splice(i, 0, url);        //together to keep them linked
         for (var k = i + 1; k < 5; k++) {
-          if (topLink[i] == topLink[k]) {
+          if (topLink[i] == topLink[k]) {   //inserts value where it should be
             topVisits.splice(k, 1);
             topLink.splice(k, 1);
             break;
@@ -141,6 +141,8 @@ app.get("/urls/new", (req, res) => {
     res.redirect("/login");
 });
 
+//Registration checks if the user and password are valid and not
+//already in use, then adds the user to the user database
 app.post("/register", (req, res) => {
   if (req.body.email == "" || req.body.password == "" || duplicateEmailChecker(req.body.email) == true) {
     console.log("Invalid email and/or password!");
@@ -180,11 +182,13 @@ app.get("/logout", (req, res) => {
   res.redirect("/urls");
 });
 
+//uses method overriding as delete can be used with forms
 app.delete("/urls/:id", (req, res) => {
   delete urlDatabase[req.session.user_id][req.params.id];
   res.redirect("/urls");
 });
 
+//uses put as this is updating rather than creating
 app.put("/urls/:id", (req, res) => {
   if (req.body.longURL == "") {
     res.send("Invalid URL");
@@ -246,6 +250,8 @@ app.get("/u/:shortURL", (req, res) => {
   };
 });
 
+//allows user to post to chatbox and refreshes page to
+//update chatbox
 app.post("/chat", (req, res) => {
   let currentTime = new Date();
   let currentUser = "Guest";
