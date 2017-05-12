@@ -13,15 +13,20 @@
     <header>
         <% include ./partials/_header %>
     </header>
-      <table>
-        <tr>
-          <th>Shortened URL</th><th>URL</th>
-        </tr>
+
+
+    <div class="main">
 
     <% if (user) { %>
-        <% for (url in urls) { %>
+      <table>
         <tr>
-          <td><a href="u/<%= url %>"><%= url %></td><td><%= urls[url] %></td>
+          <th>Shortened URL</th><th colspan = "11">URL</th>
+        </tr>
+        <% for (url in urls) { %>
+
+        <tr>
+          <td><a class="link" href="u/<%= url %>"><%= url %></a></td>
+          <td><%= urls[url].fullURL %></td>
             <td>
             <!-- <a href="urls/<%= url %>">edit</a> -->
 
@@ -31,22 +36,38 @@
 
             </td>
             <td>
-          <form method="POST" action="/urls/<%= url %>/delete">
+          <form method="POST" action="/urls/<%= url %>?_method=DELETE">
             <input type="submit" value="Delete">
-          </form></td>
+          </form></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
         </tr>
         <% } %>
       </table>
 
-      <p>
-        <a href="urls/new">Click here to shoten a new URL</a>
+      <p style="padding:10px">
+        <a class="link" href="urls/new">Click here to shoten a new URL</a>
       </p>
     <% } else { %>
+    <table>
+        <tr>
+          <th>Welcome, Guest!</th>
+        </tr>
       </table>
-      <p>
-        <a href="/login">Please login or register to use this service</a>
+      <p style="padding:10px">
+        <a class="link" href="/login">Please login or register to use this service</a>
       </p>
 
     <% } %>
+</div>
+    <div class="right">
+      <h2>Popular Links</h2>
+      <% for (var i = 0; i < 5; i++) { %>
+      <p>
+        <a href="u/<%= topLinks[i] %>"><%= topLinks[i] %></a>
+        </p>
+      <% } %>
+    </div>
+    <footer>
+      <% include ./partials/_footer %>
+    </footer>
   </body>
 </html>
