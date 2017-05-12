@@ -1,3 +1,4 @@
+//Declase and use dependencies
 var express = require("express");
 var app = express();
 var PORT = process.env.PORT || 8080; // default port 8080
@@ -5,6 +6,7 @@ const methodOverride = require("method-override");
 const cookieSession = require("cookie-session");
 const bodyParser = require("body-parser");
 const bcrypt = require("bcrypt");
+//custom module for string generator
 const generateRandomString = require("./modules/stringGenerator")
 
 app.use(methodOverride("_method"));
@@ -18,6 +20,7 @@ app.use(cookieSession({
 }));
 app.set("view engine", "ejs");
 
+//default url and user databases
 var urlDatabase = {
   "Sad342": {
     "b2xVn2": {
@@ -56,28 +59,31 @@ const users = {
   }
 };
 
+//arrays for "popular links" feature
 var topVisits = [0, 0, 0, 0, 0];
 var topLink = ["", "", "", "", ""];
+var posts = [];
 
+//Helper functions
 function duplicateStringChecker(check) {
   for(user in urlDatabase){
     if(urlDatabase[user][check] || users[check]) {
       check = generateRandomString();
       duplicateStringChecker(check);
-    }
-  }
+    };
+  };
   return check;
-}
+};
 
 function duplicateEmailChecker(email) {
   let dupe = false;
   for (user in users) {
     if (users[user]["email"] == email) {
       dupe = true;
-    }
-  }
+    };
+  };
   return dupe;
-}
+};
 
 function loginChecker(email, pass) {
   let userId = "";
@@ -85,11 +91,13 @@ function loginChecker(email, pass) {
     if (users[user]["email"] == email) {
       if (bcrypt.compareSync(pass, users[user]["password"]))
         userId = users[user]["id"];
-    }
-  }
+    };
+  };
   return userId;
-}
+};
 
+//function that orders most popular urls using
+//two linked arrays
 function topLinkFinder(visits, url) {
   for (var i = 0; i < 5; i++) {
     if (visits > topVisits[i]){
@@ -104,15 +112,15 @@ function topLinkFinder(visits, url) {
             topVisits.splice(k, 1);
             topLink.splice(k, 1);
             break;
-          }
-        }
+          };
+        };
         topVisits.splice(6, 1);
         topLink.splice(6, 1);
         break;
-      }
-    }
-  }
-}
+      };
+    };
+  };
+};
 
 app.get("/", (req, res) => {
   res.redirect("/urls");
@@ -120,7 +128,8 @@ app.get("/", (req, res) => {
 
 app.get("/urls/new", (req, res) => {
   let templateVars = {
-                       user: users[req.session.user_id]
+                       user: users[req.session.user_id],
+                       topLinks: topLink
                      };
   if (templateVars.user)
     res.render("urls_new", templateVars);
@@ -146,11 +155,20 @@ app.post("/register", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-  var tinyurl = generateRandomString();
-  tinyurl = duplicateStringChecker(tinyurl);
-  urlDatabase[req.session.user_id][tinyurl] = {"fullURL": "", "timesVisited": 0, "uniqueVisited": 0, "allVisits": []};
-  urlDatabase[req.session.user_id][tinyurl].fullURL = req.body.longURL;
-  res.redirect("/urls");
+  if (req.body.longURL == "") {
+    res.send("Invalid URL");
+  } else {
+    var tinyurl = generateRandomString();
+    tinyurl = duplicateStringChecker(tinyurl);
+    urlDatabase[req.session.user_id][tinyurl] = {
+      "fullURL": "",
+      "timesVisited": 0,
+      "uniqueVisited": 0,
+      "allVisits": []
+    };
+    urlDatabase[req.session.user_id][tinyurl].fullURL = req.body.longURL;
+    res.redirect("/urls");
+  }
 });
 
 app.get("/logout", (req, res) => {
@@ -164,16 +182,27 @@ app.delete("/urls/:id", (req, res) => {
 });
 
 app.put("/urls/:id", (req, res) => {
-  urlDatabase[req.session.user_id][req.params.id].fullURL = req.body.longURL;
-  urlDatabase[req.session.user_id][req.params.id].timesVisited = 0;
-  urlDatabase[req.session.user_id][req.params.id].uniqueVisited = 0;
-  req.session[req.params.id] = null;
-  res.redirect("/urls");
+  if (req.body.longURL == "") {
+    res.send("Invalid URL");
+  } else {
+    urlDatabase[req.session.user_id][req.params.id].fullURL = req.body.longURL;
+    urlDatabase[req.session.user_id][req.params.id].timesVisited = 0;
+    urlDatabase[req.session.user_id][req.params.id].uniqueVisited = 0;
+    req.session[req.params.id] = null;
+    res.redirect("/urls");
+  }
 });
 
 app.get("/login", (req, res) => {
-  res.render("urls_login");
-})
+  if (req.session.user_id) {
+    res.redirect("/urls");
+  } else {
+    let templateVars = {
+      topLinks: topLink
+    };
+    res.render("urls_login", templateVars);
+  };
+});
 
 app.post("/login", (req, res) => {
   let loginStatus = loginChecker(req.body.email, req.body.password);
@@ -182,46 +211,65 @@ app.post("/login", (req, res) => {
   } else {
     req.session.user_id = loginStatus;
     res.redirect("/urls");
-  }
+  };
 });
 
 app.get("/register", (req, res) => {
-  res.render("urls_register");
+  if (req.session.user_id) {
+    res.redirect("/urls");
+  } else {
+    let templateVars = {
+      topLinks: topLink
+    };
+    res.render("urls_register", templateVars);
+  }
 });
 
 app.get("/u/:shortURL", (req, res) => {
   let longURL = req.params.shortURL;
   for(user in urlDatabase){
-      if(urlDatabase[user][longURL]){
-        urlDatabase[user][longURL].timesVisited++;
-        topLinkFinder(urlDatabase[user][longURL].timesVisited, longURL)
-        let d = new Date();
-        urlDatabase[user][longURL].allVisits.push(d + " : " + generateRandomString());
-        if(!req.session[longURL]) {
-          urlDatabase[user][longURL].uniqueVisited++;
-          req.session[longURL] = 1;
-        }
-        res.redirect(urlDatabase[user][longURL].fullURL);
-      }
+    if(urlDatabase[user][longURL]){
+      urlDatabase[user][longURL].timesVisited++;
+      topLinkFinder(urlDatabase[user][longURL].timesVisited, longURL)
+      let d = new Date();
+      urlDatabase[user][longURL].allVisits.push(d + " : " + generateRandomString());
+      if(!req.session[longURL]) {
+        urlDatabase[user][longURL].uniqueVisited++;
+        req.session[longURL] = 1;
+      };
+      res.redirect(urlDatabase[user][longURL].fullURL);
+    };
+  };
+});
+
+app.post("/chat", (req, res) => {
+  let currentTime = new Date();
+  let currentUser = "Guest";
+  if (req.session.user_id) {
+    currentUser = users[req.session.user_id].id;
   }
+  posts.push(`${currentTime.getHours()}:${currentTime.getMinutes()} ${currentUser}: ${req.body.post}`);
+  res.redirect("/urls");
 });
 
 app.get("/urls", (req, res) => {
-  let templateVars = { urls: urlDatabase[req.session.user_id],
-                       user: users[req.session.user_id],
-                       topLinks: topLink
-                     };
-  console.log(topLink);
+  let templateVars = {
+    urls: urlDatabase[req.session.user_id],
+    user: users[req.session.user_id],
+    topLinks: topLink,
+    chatLog: posts
+  };
   res.render("urls_index", templateVars);
-})
+});
 
 app.get("/urls/:id", (req, res) => {
 
   let templateVars = {
-                        shortURL: req.params.id,
-                        longURL: urlDatabase[req.session.user_id][req.params.id],
-                        user: users[req.session.user_id]
-                     };
+    shortURL: req.params.id,
+    longURL: urlDatabase[req.session.user_id][req.params.id],
+    user: users[req.session.user_id],
+    topLinks: topLink
+  };
   if (templateVars.user)
     res.render("urls_show", templateVars);
   else

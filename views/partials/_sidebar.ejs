@@ -1,0 +1,13 @@
+<div class="right">
+  <center>
+    <h2>Popular Links</h2>
+  </center>
+  <% for (var i = 0; i < 5; i++) { %>
+    <center>
+      <p>
+      <% if (topLinks[i] !== "") { %>
+        <a class = "link2" href="u/<%= topLinks[i] %>"><%= topLinks[i] %></a>
+      </p>
+    </center>
+  <% }} %>
+</div>

@@ -1,27 +1,19 @@
 <h1 style="padding:10px">
-  <!-- <a href="/urls"> -->
-    URshortLs
-  <!-- </a> -->
+  URshortLs
 </h1>
 
 <% if(user){ %>
-  <a href="/logout" style="padding:10px">
-    <input type="submit" value="Logout">
-  </a>
+  <p style="padding:5px">User: <%= user.email %>
+    <a href="/logout" style="padding:10px">
+      <input type="submit" value="Logout">
+    </a>
+  </p>
 
 <% } else { %>
-      <!-- <form method="POST" action="/login">
-        <label for="email">E-Mail:</label>
-        <input id="email" type="email" name="email" style="width: 200px">
-        <label for="password">Password:</label>
-        <input id="password" type="password" name="password" style="width: 200px">
-        <input type="submit" value="Login"> -->
   <a href="/login" style="padding:10px">
     <input type="submit" value="Login">
   </a>
   <a href="/register">
     <input type="submit" value="Register">
   </a>
-      <!-- </form> -->
-
 <% } %>

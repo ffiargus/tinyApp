@@ -12,25 +12,25 @@
       <% include ./partials/_header %>
     </header>
 
+    <form method="POST" action="/urls/<%= shortURL %>?_method=PUT" style="margin:150px;">
       <h2>ShortURL: <%= shortURL %></h2>
-      <form method="POST" action="/urls/<%= shortURL %>?_method=PUT">
-        <input id="longURL" type="text" name="longURL" placeholder="<%=longURL.fullURL%>" style="width: 200px">
-        <input type="submit" value="Update">
-      </form>
+      <input id="longURL" type="text" name="longURL" placeholder="<%=longURL.fullURL%>" style="width: 200px">
+      <input type="submit" value="Update">
 
-        <label for="longURL">Visited: <%=longURL.timesVisited%> time(s)</label>
+      <p>Visited: <%= longURL.timesVisited%> time(s)</p>
 
-        <p><%=longURL.uniqueVisited%> Unique Visitor(s)</p>
+      <p><%=longURL.uniqueVisited%> Unique Visitor(s)</p>
 
-        <p>Visit log: </p>
+      <p>Visit log: </p>
 
-        <% for (visitor of longURL.allVisits) {%>
+      <% for (visitor of longURL.allVisits) {%>
         <p><%= visitor %></p>
-        <% } %>
+      <% } %>
 
-        <footer>
-          <% include ./partials/_footer %>
-        </footer>
-
+    </form>
+    <footer>
+      <% include ./partials/_footer %>
+    </footer>
   </body>
+
 </html>

@@ -11,60 +11,62 @@
 
   <body>
     <header>
-        <% include ./partials/_header %>
+      <% include ./partials/_header %>
     </header>
-
 
     <div class="main">
 
-    <% if (user) { %>
-      <table>
-        <tr>
-          <th>Shortened URL</th><th colspan = "11">URL</th>
-        </tr>
-        <% for (url in urls) { %>
+      <% if (user) { %>
+        <table>
+          <tr>
+            <th>Shortened URL</th><th style="text-align:center">Visits</th><th colspan = "11">URL</th>
+          </tr>
 
-        <tr>
-          <td><a class="link" href="u/<%= url %>"><%= url %></a></td>
-          <td><%= urls[url].fullURL %></td>
-            <td>
-            <!-- <a href="urls/<%= url %>">edit</a> -->
+          <% for (url in urls) { %>
+            <tr>
+              <td><a class="link" href="u/<%= url %>"><%= url %></a></td>
+              <td style="text-align:center"><%= urls[url].timesVisited %></td>
+              <td><%= urls[url].fullURL %></td>
+                <td>
+                  <a href="urls/<%= url %>">
+                    <input type="submit" value="Update">
+                  </a>
+                </td>
+                <td>
+              <form method="POST" action="/urls/<%= url %>?_method=DELETE">
+                <input type="submit" value="Delete">
+              </form></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+            </tr>
+          <% } %>
+        </table>
 
-              <a href="urls/<%= url %>">
-                <input type="submit" value="Update">
-              </a>
-
-            </td>
-            <td>
-          <form method="POST" action="/urls/<%= url %>?_method=DELETE">
-            <input type="submit" value="Delete">
-          </form></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
-        </tr>
-        <% } %>
-      </table>
-
-      <p style="padding:10px">
-        <a class="link" href="urls/new">Click here to shoten a new URL</a>
-      </p>
-    <% } else { %>
-    <table>
-        <tr>
-          <th>Welcome, Guest!</th>
-        </tr>
-      </table>
-      <p style="padding:10px">
-        <a class="link" href="/login">Please login or register to use this service</a>
-      </p>
-
-    <% } %>
-</div>
-    <div class="right">
-      <h2>Popular Links</h2>
-      <% for (var i = 0; i < 5; i++) { %>
-      <p>
-        <a href="u/<%= topLinks[i] %>"><%= topLinks[i] %></a>
+        <p style="padding:10px">
+          <a class="link" href="urls/new">Click here to shoten a new URL</a>
         </p>
+      <% } else { %>
+        <table>
+          <tr>
+            <th>Welcome, Guest!</th>
+          </tr>
+        </table>
+        <p style="padding:10px">
+          <a class="link" href="/login">Please login or register to use this service</a>
+        </p>
+
       <% } %>
+    </div>
+
+    <% include ./partials/_sidebar %>
+
+    <div class="forum">
+      <h3>Discuss and share URLs</h3>
+      <% for (log of chatLog) { %>
+        <p style="padding:2px"><%= log %></p>
+      <% } %>
+      <form method="POST" action="/chat" style="padding:5px;position:absolute;bottom:3px">
+        <input type="text" name="post" style="width:74%">
+        <input type="submit" value="Post" style="width:40px">
+      </form>
     </div>
     <footer>
       <% include ./partials/_footer %>
